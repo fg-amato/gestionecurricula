@@ -110,7 +110,7 @@ public class EsperienzaDAOImpl extends AbstractMySQLDAO implements EsperienzaDAO
 			ps.setString(2, input.getConoscenzeAcquisite());
 			ps.setDate(3, new java.sql.Date(input.getDataInizio().getTime()));
 			ps.setDate(4, new java.sql.Date(input.getDataFine().getTime()));
-			ps.setLong(6, input.getCurriculum().getId());
+			ps.setLong(5, input.getCurriculum().getId());
 			result = ps.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -187,6 +187,68 @@ public class EsperienzaDAOImpl extends AbstractMySQLDAO implements EsperienzaDAO
 	@Override
 	public void setConnection(Connection connection) {
 		this.connection = connection;
+	}
+
+	@Override
+	public List<Esperienza> findEsperienzeChiuseByIdCurriculum(Long idCurriculum) throws Exception {
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		ArrayList<Esperienza> result = new ArrayList<Esperienza>();
+		Esperienza esperienzaTemp = null;
+
+		try (PreparedStatement ps = connection.prepareStatement(
+				"select * from Esperienza e inner join Curriculum c on e.curriculum_id = c.id where c.id = ? and e.datafine is not null")) {
+			ps.setLong(1, idCurriculum);
+
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					esperienzaTemp = new Esperienza();
+					esperienzaTemp.setDescrizione(rs.getString("Descrizione"));
+					esperienzaTemp.setConoscenzeAcquisite(rs.getString("ConoscenzeAcquisite"));
+					esperienzaTemp.setDataInizio(rs.getDate("DataInizio"));
+					esperienzaTemp.setDataFine(rs.getDate("datafine"));
+					esperienzaTemp.setId(rs.getLong("ID"));
+					result.add(esperienzaTemp);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
+	}
+
+	@Override
+	public Esperienza getEsperienzaNonChiusaByIdCurriculum(Long idCurriculum) throws Exception {
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		if (idCurriculum == null || idCurriculum < 1)
+			throw new Exception("Valore di input non ammesso.");
+
+		Esperienza result = null;
+		try (PreparedStatement ps = connection.prepareStatement("select * from Esperienza where curriculum_id=?")) {
+
+			ps.setLong(1, idCurriculum);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					result = new Esperienza();
+					result.setDescrizione(rs.getString("Descrizione"));
+					result.setConoscenzeAcquisite(rs.getString("ConoscenzeAcquisite"));
+					result.setDataInizio(rs.getDate("DataInizio"));
+					result.setDataFine(rs.getDate("datafine"));
+					result.setId(rs.getLong("ID"));
+				} else {
+					result = null;
+				}
+			} // niente catch qui
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 }

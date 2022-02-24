@@ -8,7 +8,6 @@ import it.gestionecurricula.connection.MyConnection;
 import it.gestionecurricula.dao.Constants;
 import it.gestionecurricula.dao.esperienza.EsperienzaDAO;
 import it.gestionecurricula.model.Esperienza;
-import it.prova.model.User;
 
 public class EsperienzaServiceImpl implements EsperienzaService {
 
@@ -66,8 +65,37 @@ public class EsperienzaServiceImpl implements EsperienzaService {
 
 	@Override
 	public int inserisciNuovo(Esperienza input) throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		if (input == null)
+			throw new Exception("Valore di input non ammesso.");
+
+		int result = 0;
+		try (Connection connection = MyConnection.getConnection(Constants.DRIVER_NAME, Constants.CONNECTION_URL)) {
+
+			// inietto la connection nel dao
+			esperienzaDAO.setConnection(connection);
+			Esperienza esperienzaNonChiusa = esperienzaDAO
+					.getEsperienzaNonChiusaByIdCurriculum(input.getCurriculum().getId());
+			if (esperienzaNonChiusa != null) {
+				esperienzaNonChiusa.setDataFine(input.getDataInizio());
+
+				esperienzaDAO.update(esperienzaNonChiusa);
+			}
+
+			List<Esperienza> esperienzeChiuseDelCurriculum = esperienzaDAO
+					.findEsperienzeChiuseByIdCurriculum(input.getCurriculum().getId());
+
+			for (Esperienza esperienzeChiuseDelCurriculumItem : esperienzeChiuseDelCurriculum) {
+				if (input.getDataInizio().before(esperienzeChiuseDelCurriculumItem.getDataFine())
+						|| input.getDataFine().after(esperienzeChiuseDelCurriculumItem.getDataInizio())) {
+					throw new RuntimeException("Date non compatibili con esperienze già presenti");
+				}
+			}
+			result = esperienzaDAO.insert(input);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 	@Override

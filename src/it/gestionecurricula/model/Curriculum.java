@@ -18,6 +18,15 @@ public class Curriculum {
 		super();
 	}
 
+	public Curriculum(String nome, String cognome, Date dataDiNascita, String telefono, String email) {
+		super();
+		this.nome = nome;
+		this.cognome = cognome;
+		this.dataDiNascita = dataDiNascita;
+		this.telefono = telefono;
+		this.email = email;
+	}
+
 	public Curriculum(Long id, String nome, String cognome, Date dataDiNascita, String telefono, String email) {
 		super();
 		this.id = id;
