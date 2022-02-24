@@ -59,8 +59,23 @@ public class CurriculumServiceImpl implements CurriculumService {
 
 	@Override
 	public int aggiorna(Curriculum input) throws Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		if (input == null || input.getId() == null || input.getId() < 1)
+			throw new Exception("Valore di input non ammesso.");
+
+		int result = 0;
+		try (Connection connection = MyConnection.getConnection(Constants.DRIVER_NAME, Constants.CONNECTION_URL)) {
+
+			// inietto la connection nel dao
+			curriculumDAO.setConnection(connection);
+
+			// eseguo quello che realmente devo fare
+			result = curriculumDAO.update(input);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 	@Override

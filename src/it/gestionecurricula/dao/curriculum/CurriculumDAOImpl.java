@@ -9,6 +9,7 @@ import java.util.List;
 
 import it.gestionecurricula.dao.AbstractMySQLDAO;
 import it.gestionecurricula.model.Curriculum;
+import it.gestionecurricula.model.Esperienza;
 
 public class CurriculumDAOImpl extends AbstractMySQLDAO implements CurriculumDAO {
 
@@ -197,6 +198,36 @@ public class CurriculumDAOImpl extends AbstractMySQLDAO implements CurriculumDAO
 	@Override
 	public void setConnection(Connection connection) {
 		this.connection = connection;
+	}
+
+	@Override
+	public List<Esperienza> findEsperienzeByCurriculum(Curriculum input) throws Exception {
+		if (isNotActive())
+			throw new Exception("Connessione non attiva. Impossibile effettuare operazioni DAO.");
+
+		ArrayList<Esperienza> result = new ArrayList<Esperienza>();
+		Esperienza esperienzaTemp = null;
+
+		try (PreparedStatement ps = connection.prepareStatement(
+				"select * from Esperienza e inner join Curriculum c on e.curriculum_id = c.id where c.id = ?")) {
+			ps.setLong(1, input.getId());
+
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					esperienzaTemp = new Esperienza();
+					esperienzaTemp.setDescrizione(rs.getString("Descrizione"));
+					esperienzaTemp.setConoscenzeAcquisite(rs.getString("ConoscenzeAcquisite"));
+					esperienzaTemp.setDataInizio(rs.getDate("DataInizio"));
+					esperienzaTemp.setDataFine(rs.getDate("datafine"));
+					esperienzaTemp.setId(rs.getLong("ID"));
+					result.add(esperienzaTemp);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import it.gestionecurricula.dao.IBaseDAO;
 import it.gestionecurricula.model.Curriculum;
+import it.gestionecurricula.model.Esperienza;
 
 public interface CurriculumDAO extends IBaseDAO<Curriculum> {
 	public List<Curriculum> list() throws Exception;
@@ -17,4 +18,6 @@ public interface CurriculumDAO extends IBaseDAO<Curriculum> {
 	public int delete(Curriculum input) throws Exception;
 
 	public List<Curriculum> findByExample(Curriculum input) throws Exception;
+
+	public List<Esperienza> findEsperienzeByCurriculum(Curriculum input) throws Exception;
 }
