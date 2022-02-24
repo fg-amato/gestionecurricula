@@ -1,9 +1,14 @@
 package it.gestionecurricula.service.esperienza;
 
+import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
+import it.gestionecurricula.connection.MyConnection;
+import it.gestionecurricula.dao.Constants;
 import it.gestionecurricula.dao.esperienza.EsperienzaDAO;
 import it.gestionecurricula.model.Esperienza;
+import it.prova.model.User;
 
 public class EsperienzaServiceImpl implements EsperienzaService {
 
@@ -16,14 +21,41 @@ public class EsperienzaServiceImpl implements EsperienzaService {
 
 	@Override
 	public List<Esperienza> listAll() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		List<Esperienza> result = new ArrayList<>();
+		try (Connection connection = MyConnection.getConnection(Constants.DRIVER_NAME, Constants.CONNECTION_URL)) {
+
+			// inietto la connection nel dao
+			esperienzaDAO.setConnection(connection);
+
+			// eseguo quello che realmente devo fare
+			result = esperienzaDAO.list();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 	@Override
 	public Esperienza findById(Long idInput) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		if (idInput == null || idInput < 1)
+			throw new Exception("Valore di input non ammesso.");
+
+		Esperienza result = null;
+		try (Connection connection = MyConnection.getConnection(Constants.DRIVER_NAME, Constants.CONNECTION_URL)) {
+
+			// inietto la connection nel dao
+			esperienzaDAO.setConnection(connection);
+
+			// eseguo quello che realmente devo fare
+			result = esperienzaDAO.get(idInput);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 	@Override
