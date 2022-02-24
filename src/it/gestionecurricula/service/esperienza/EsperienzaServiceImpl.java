@@ -121,8 +121,20 @@ public class EsperienzaServiceImpl implements EsperienzaService {
 
 	@Override
 	public List<Esperienza> findByExample(Esperienza input) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		List<Esperienza> result = new ArrayList<>();
+		try (Connection connection = MyConnection.getConnection(Constants.DRIVER_NAME, Constants.CONNECTION_URL)) {
+
+			// inietto la connection nel dao
+			esperienzaDAO.setConnection(connection);
+
+			// eseguo quello che realmente devo fare
+			result = esperienzaDAO.findByExample(input);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		return result;
 	}
 
 }
