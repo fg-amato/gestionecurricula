@@ -19,6 +19,9 @@ public class TestGestioneCurricula {
 			testInserimentoNuovoCurriculum(curriculumService);
 
 			testInserimentoNuovaEsperienza(esperienzaService, curriculumService);
+
+			testRimozioneCurriculum(curriculumService);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -61,5 +64,34 @@ public class TestGestioneCurricula {
 			throw new RuntimeException("testInserimentoNuovoEsperienza secondo FAILED ");
 
 		System.out.println(".......testInserimentoNuovoEsperienza PASSED.............");
+	}
+
+	private static void testRimozioneCurriculum(CurriculumService curriculumService) throws Exception {
+
+		System.out.println(".......testRimozioneCurriculum inizio.............");
+		if (curriculumService.listAll().size() < 1) {
+			throw new RuntimeException("testRimozioneCurriculum: FAILED, non ci sono curriculum");
+		}
+		// uso il primo per vedere se viene violata la regola di business
+		// sono sicuro che abbia dei curriculum attivi per il test precedente
+		Curriculum primoCurriculumLista = curriculumService.listAll().get(0);
+		Date dataNascitaCurriculumDaRimuovere = new SimpleDateFormat("dd-MM-yyyy").parse("17-05-1970");
+
+		Curriculum secondoCurriculum = new Curriculum("Giovanna", "Rossi", dataNascitaCurriculumDaRimuovere, "443",
+				"grossi@example.com");
+
+		if (curriculumService.inserisciNuovo(secondoCurriculum) != 1)
+			throw new RuntimeException("testRimozioneCurriculum secondo: FAILED, curriculum non inserito ");
+		Curriculum giovannaRossiDaList = curriculumService.listAll().get(curriculumService.listAll().size() - 1);
+
+		if (curriculumService.rimuovi(giovannaRossiDaList) != 1) {
+			throw new RuntimeException("testRimozioneCurriculum: FAILED (primo)");
+		}
+
+		if (curriculumService.rimuovi(primoCurriculumLista) != 1) {
+			throw new RuntimeException("testRimozioneCurriculum: FAILED (secondo)");
+		}
+
+		System.out.println(".......testRimozioneCurriculum PASSED.............");
 	}
 }
